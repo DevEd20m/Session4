@@ -8,7 +8,8 @@ import com.faztbit.lesson4.R
 import com.faztbit.lesson4.databinding.ItemProductsBinding
 import com.faztbit.lesson4.models.Products
 
-class ProductsAdapter : RecyclerView.Adapter<ProductsAdapter.ViewHolder>() {
+class ProductsAdapter(private val listener: ProductAdapterListener) :
+    RecyclerView.Adapter<ProductsAdapter.ViewHolder>() {
     var list = emptyList<Products>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductsAdapter.ViewHolder {
         val view =
@@ -20,13 +21,19 @@ class ProductsAdapter : RecyclerView.Adapter<ProductsAdapter.ViewHolder>() {
         val item = list[position]
         holder.bind(item)
 
+        holder.binding.textViewRemove.setOnClickListener {
+            listener.remove(item)
+        }
+        holder.itemView.setOnClickListener {
+            listener.passDataToDetail(item)
+        }
     }
 
     override fun getItemCount() = list.size
 
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val binding = ItemProductsBinding.bind(view)
+        val binding = ItemProductsBinding.bind(view)
 
         fun bind(products: Products) {
             with(binding) {
@@ -34,6 +41,11 @@ class ProductsAdapter : RecyclerView.Adapter<ProductsAdapter.ViewHolder>() {
                 textViewPrice.text = products.price.toString()
             }
         }
+    }
+
+    interface ProductAdapterListener {
+        fun remove(products: Products)
+        fun passDataToDetail(products: Products)
     }
 
 }

@@ -1,19 +1,20 @@
 package com.faztbit.lesson4.ui.products
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.faztbit.lesson4.data.ProductDatabase
 import com.faztbit.lesson4.data.RoomRepository
 import com.faztbit.lesson4.databinding.ActivityListProductBinding
+import com.faztbit.lesson4.gonnaToActivity
 import com.faztbit.lesson4.models.Constants.PREFIX_NAME
+import com.faztbit.lesson4.models.Products
+import com.faztbit.lesson4.ui.detail.DetailProductActivity
 
 
-class ListProductActivity : AppCompatActivity() {
+class ListProductActivity : AppCompatActivity(), ProductsAdapter.ProductAdapterListener {
     private lateinit var binding: ActivityListProductBinding
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var adapterMain: ProductsAdapter
@@ -27,6 +28,20 @@ class ListProductActivity : AppCompatActivity() {
         setUpViewModel()
         setUpRecyclerView()
         setUpViewModelObservers()
+        events()
+    }
+
+
+    private fun events() {
+        binding.floatingButton.setOnClickListener {
+            viewModel.addProduct(
+                Products(
+                    null,
+                    "Producto ${Math.random().toInt()}",
+                    Math.random().toInt().toDouble(), 1.0, false
+                )
+            )
+        }
     }
 
     private fun setUpSharedPreference() {
@@ -39,14 +54,15 @@ class ListProductActivity : AppCompatActivity() {
 
     private fun setUpRecyclerView() {
         with(binding.recyclerViewProducts) {
-            adapterMain = ProductsAdapter()
+            adapterMain = ProductsAdapter(this@ListProductActivity)
             adapter = adapterMain
             layoutManager = LinearLayoutManager(this@ListProductActivity)
         }
     }
 
     private fun setUpViewModel() {
-        val factory = ListProductViewModelFactory(RoomRepository())
+        val roomInstance = ProductDatabase.getDataBaseInstance(this)
+        val factory = ListProductViewModelFactory(RoomRepository(roomInstance))
         viewModel = ViewModelProviders.of(this, factory)[ListProductViewModel::class.java]
     }
 
@@ -55,9 +71,18 @@ class ListProductActivity : AppCompatActivity() {
             products.observe(this@ListProductActivity, {
                 it?.let {
                     adapterMain.list = it
+                    adapterMain.notifyDataSetChanged()
                 }
             })
         }
+    }
+
+    override fun remove(products: Products) {
+        viewModel.removeProduct(products)
+    }
+
+    override fun passDataToDetail(products: Products) {
+        gonnaToActivity(DetailProductActivity::class.java, DetailProductActivity.PRODUCT, products)
     }
 
 }
