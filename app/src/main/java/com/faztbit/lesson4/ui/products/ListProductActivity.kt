@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.faztbit.lesson4.data.ProductDatabase
 import com.faztbit.lesson4.data.RoomRepository
 import com.faztbit.lesson4.databinding.ActivityListProductBinding
@@ -17,13 +19,22 @@ import com.faztbit.lesson4.ui.detail.DetailProductActivity
 class ListProductActivity : AppCompatActivity(), ProductsAdapter.ProductAdapterListener {
     private lateinit var binding: ActivityListProductBinding
     private lateinit var sharedPreferences: SharedPreferences
+    private val sharedPreferencesEncrypted by lazy {
+        EncryptedSharedPreferences.create(
+            "Lesson4Encrypted",
+            MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
+            this,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
     private lateinit var adapterMain: ProductsAdapter
     private lateinit var viewModel: ListProductViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityListProductBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setUpSharedPreference()
+//        setUpSharedPreference()
         setInformationView()
         setUpViewModel()
         setUpRecyclerView()
@@ -42,6 +53,10 @@ class ListProductActivity : AppCompatActivity(), ProductsAdapter.ProductAdapterL
                 )
             )
         }
+        binding.floatingButtonCloseSession.setOnClickListener {
+            sharedPreferences.edit().clear().apply()
+            finish()
+        }
     }
 
     private fun setUpSharedPreference() {
@@ -49,7 +64,8 @@ class ListProductActivity : AppCompatActivity(), ProductsAdapter.ProductAdapterL
     }
 
     private fun setInformationView() {
-        binding.textViewNameUser.text = sharedPreferences.getString(PREFIX_NAME, null)
+//        binding.textViewNameUser.text = sharedPreferences.getString(PREFIX_NAME, null)
+        binding.textViewNameUser.text = sharedPreferencesEncrypted.getString(PREFIX_NAME, null)
     }
 
     private fun setUpRecyclerView() {
