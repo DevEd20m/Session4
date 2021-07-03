@@ -12,4 +12,5 @@ class ListProductActivity : AppCompatActivity() {
         binding = ActivityListProductBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
+
 }
