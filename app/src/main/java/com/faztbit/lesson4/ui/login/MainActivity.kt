@@ -1,7 +1,7 @@
 package com.faztbit.lesson4.ui.login
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.faztbit.lesson4.databinding.ActivityMainBinding
 import com.faztbit.lesson4.gonnaToActivity
 import com.faztbit.lesson4.showMessage

@@ -9,6 +9,6 @@ fun Context.showMessage(value: String) {
 }
 
 fun Context.gonnaToActivity(classNew: Class<*>) {
-    val intent = Intent(this, classNew::class.java)
+    val intent = Intent(this, classNew)
     startActivity(intent)
 }
